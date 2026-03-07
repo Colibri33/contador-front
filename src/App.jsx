@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL = "https://contador-back-auxv.onrender.com";
 
 const STORE_COLORS = {
   Jumbo: { bg: "#e8000d", text: "#fff" },

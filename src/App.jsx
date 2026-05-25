@@ -20,7 +20,7 @@ function getStoreStyle(store) {
 }
 
 function formatCOP(value) {
-  if (value === null || value === undefined) return "-";
+  if (value === null || value === undefineda return "-";
   try {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
@@ -30,6 +30,40 @@ function formatCOP(value) {
   } catch {
     return `$${value}`;
   }
+}
+
+// Supported units for filter
+const UNITS = [
+  { label: "Todos", value: "" },
+  { label: "ml", value: "ml" },
+  { label: "L (litros)", value: "l" },
+  { label: "g (gramos)", value: "g" },
+  { label: "kg", value: "kg" },
+  { label: "oz (onzas)", value: "oz" },
+  { label: 'pulgadas (")', value: "in" },
+  { label: "cm", value: "cm" },
+  { label: "m (metros)", value: "m" },
+  { label: "unidades", value: "un" },
+];
+
+// Try to detect unit from title/ml field
+function detectUnit(item) {
+  const titleLower = (item.title || "").toLowerCase();
+  // If has ml field, its ml/l
+  if (item.ml) {
+    if (item.ml >= 1000) return "l";
+    return "ml";
+  }
+  if (/\d+\s*ml\b/.test(titleLower)) return "ml";
+  if (/\d+\s*(litro|lts?)\b/.test(titleLower)) return "l";
+  if (/\d+\s*kg\b/.test(titleLower)) return "kg";
+  if (/\d+\s*gr?\b/.test(titleLower)) return "g";
+  if (/\d+\s*oz\b/.test(titleLower)) return "oz";
+  if (/\d+\s*("|pulgadas?|inch(es)?)\b/.test(titleLower)) return "in";
+  if (/\d+\s*cm\b/.test(titleLower)) return "cm";
+  if (/\d+\s*m\b/.test(titleLower)) return "m";
+  if (/\b(unidad|und|pza|pieza)\b/.test(titleLower)) return "un";
+  return "";
 }
 
 const styles = `
@@ -187,6 +221,151 @@ const styles = `
     background: linear-gradient(180deg, #FF9A3C 0%, #f5f5f5 100%);
     height: 36px;
     clip-path: ellipse(55% 100% at 50% 0%);
+  }
+
+  /* FILTER PANEL */
+  .mk-filter-panel {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+  }
+
+  .mk-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 140px;
+  }
+
+  .mk-filter-group label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .mk-filter-group input,
+  .mk-filter-group select {
+    padding: 9px 14px;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+    background: #fafafa;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .mk-filter-group input:focus,
+  .mk-filter-group select:focus {
+    border-color: #FF5000;
+    background: #fff;
+  }
+
+  .mk-price-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mk-price-range span {
+    color: #aaa;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .mk-price-range input {
+    width: 110px;
+  }
+
+  .mk-filter-reset {
+    background: none;
+    border: 2px solid #FF5000;
+    color: #FF5000;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .mk-filter-reset:hover {
+    background: #FF5000;
+    color: #fff;
+  }
+
+  .mk-filter-title {
+    width: 100%;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: -8px;
+  }
+
+  .mk-filter-active-count {
+    background: #FF5000;
+    color: #fff;
+    border-radius: 20px;
+    padding: 1px 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  /* UNIT CHIPS */
+  .mk-unit-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mk-unit-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid #e5e5e5;
+    background: #fafafa;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .mk-unit-chip:hover {
+    border-color: #FF5000;
+    color: #FF5000;
+  }
+
+  .mk-unit-chip.active {
+    background: #FF5000;
+    border-color: #FF5000;
+    color: #fff;
+  }
+
+  .mk-filtered-count {
+    font-size: 0.82rem;
+    color: #aaa;
+    font-weight: 600;
+    margin-left: auto;
+    align-self: center;
   }
 
   /* MAIN CONTENT */
@@ -434,13 +613,53 @@ export default function App() {
   const [err, setErr] = useState("");
   const [searched, setSearched] = useState(false);
 
+  // Filter state
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [unitFilter, setUnitFilter] = useState("");
+
+  // Compute price range from data
+  const priceRange = useMemo(() => {
+    if (!data.length) return { min: 0, max: 0 };
+    const prices = data.map((d) => d.price_cop).filter((p) => p != null);
+    return {
+      min: Math.floor(Math.min(...prices)),
+      max: Math.ceil(Math.max(...prices)),
+    };
+  }, [data]);
+
+  // Filtered data
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      // Price filter
+      const price = item.price_cop ?? 0;
+      if (minPrice !== "" && price < Number(minPrice)) return false;
+      if (maxPrice !== "" && price > Number(maxPrice)) return false;
+      // Unit filter
+      if (unitFilter) {
+        const detected = detectUnit(item);
+        if (detected !== unitFilter) return false;
+      }
+      return true;
+    });
+  }, [data, minPrice, maxPrice, unitFilter]);
+
   const cheapest = useMemo(() => {
-    if (!data || data.length === 0) return null;
-    return data.reduce((min, item) => {
+    if (!filteredData || filteredData.length === 0) return null;
+    return filteredData.reduce((min, item) => {
       if (!min) return item;
       return (item.price_cop ?? Infinity) < (min.price_cop ?? Infinity) ? item : min;
     }, null);
-  }, [data]);
+  }, [filteredData]);
+
+  // Count how many filters are active
+  const activeFilters = [minPrice, maxPrice, unitFilter].filter(Boolean).length;
+
+  function resetFilters() {
+    setMinPrice("");
+    setMaxPrice("");
+    setUnitFilter("");
+  }
 
   async function handleSearch(e) {
     e?.preventDefault();
@@ -448,6 +667,7 @@ export default function App() {
     setLoading(true);
     setErr("");
     setSearched(true);
+    resetFilters();
 
     try {
       const size = sizeMl.trim() ? Number(sizeMl.trim()) : null;
@@ -525,6 +745,69 @@ export default function App() {
             </div>
           )}
 
+          {/* FILTER PANEL — only shown when there are results */}
+          {!loading && data.length > 0 && (
+            <div className="mk-filter-panel">
+              <div className="mk-filter-title">
+                🎛️ Filtros
+                {activeFilters > 0 && (
+                  <span className="mk-filter-active-count">{activeFilters} activo{activeFilters > 1 ? "s" : ""}</span>
+                )}
+                {data.length !== filteredData.length && (
+                  <span className="mk-filtered-count">
+                    Mostrando {filteredData.length} de {data.length}
+                  </span>
+                )}
+              </div>
+
+              {/* Price range */}
+              <div className="mk-filter-group">
+                <label>Precio mínimo (COP)</label>
+                <input
+                  type="number"
+                  placeholder={`desde $${priceRange.min.toLocaleString("es-CO")}`}
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  min={0}
+                />
+              </div>
+
+              <div className="mk-filter-group">
+                <label>Precio máximo (COP)</label>
+                <input
+                  type="number"
+                  placeholder={`hasta $${priceRange.max.toLocaleString("es-CO")}`}
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  min={0}
+                />
+              </div>
+
+              {/* Unit filter as chips */}
+              <div className="mk-filter-group" style={{ minWidth: 320 }}>
+                <label>Unidad de medida</label>
+                <div className="mk-unit-chips">
+                  {UNITS.map((u) => (
+                    <button
+                      key={u.value}
+                      className={`mk-unit-chip${unitFilter === u.value ? " active" : ""}`}
+                      onClick={() => setUnitFilter(u.value)}
+                      type="button"
+                    >
+                      {u.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {activeFilters > 0 && (
+                <button className="mk-filter-reset" onClick={resetFilters} type="button">
+                  ✕ Limpiar filtros
+                </button>
+              )}
+            </div>
+          )}
+
           {!loading && cheapest && (
             <div className="mk-cheapest-banner">
               <span className="icon">🏆</span>
@@ -536,13 +819,14 @@ export default function App() {
             </div>
           )}
 
-          {!loading && data.length > 0 && (
+          {!loading && filteredData.length > 0 && (
             <>
               <div className="mk-results-header">
-                {data.length} resultado{data.length !== 1 ? "s" : ""} encontrado{data.length !== 1 ? "s" : ""}
+                {filteredData.length} resultado{filteredData.length !== 1 ? "s" : ""} encontrado{filteredData.length !== 1 ? "s" : ""}
+                {filteredData.length !== data.length && ` (filtrado de ${data.length})`}
               </div>
               <div className="mk-grid">
-                {data.map((item, idx) => {
+                {filteredData.map((item, idx) => {
                   const isCheapest =
                     cheapest &&
                     item.store === cheapest.store &&
@@ -597,6 +881,19 @@ export default function App() {
                 })}
               </div>
             </>
+          )}
+
+          {/* No results after filter */}
+          {!loading && searched && data.length > 0 && filteredData.length === 0 && (
+            <div className="mk-empty">
+              🔎 Ningún resultado coincide con los filtros aplicados.<br />
+              <button
+                onClick={resetFilters}
+                style={{ marginTop: 14, background: "#FF5000", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", fontFamily: "Nunito,sans-serif", fontWeight: 800, cursor: "pointer", fontSize: "0.95rem" }}
+              >
+                Quitar filtros
+              </button>
+            </div>
           )}
 
           {!loading && searched && data.length === 0 && !err && (

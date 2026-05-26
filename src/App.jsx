@@ -20,7 +20,7 @@ function getStoreStyle(store) {
 }
 
 function formatCOP(value) {
-  if (value === null || value === undefineda ) return "-";
+  if (value === null || value === undefined) return "-";
   try {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
